@@ -3,5 +3,8 @@
     "mocha": true,
     "truffle/globals": true
   },
-  "plugins": ["truffle"]
+  "plugins": ["truffle"],
+  "rules": {
+    "jest/valid-expect": "off"
+  }
 }
