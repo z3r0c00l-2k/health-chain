@@ -17,6 +17,7 @@ contract HealthChain {
         uint256 age;
         string sex;
         uint256 createdDate;
+        address[] requestedDoctors;
         address[] allowedDoctors;
         Prescription[] prescriptionNotes;
     }
@@ -107,4 +108,45 @@ contract HealthChain {
 
         return true;
     }
+
+    function requestForPatientAccess(address _patientId)
+        public
+        returns (bool success)
+    {
+        require(
+            bytes(doctorDataOf[msg.sender].fullName).length > 0,
+            "You should be a doctor"
+        );
+        require(
+            bytes(patientDataOf[_patientId].fullName).length > 0,
+            "No patient found with this id"
+        );
+
+        patientDataOf[_patientId].requestedDoctors.push(msg.sender);
+
+        return true;
+    }
+
+    function getDoctorRequests()
+        public
+        view
+        returns (address[] memory requestedDoctors)
+    {
+        require(
+            bytes(patientDataOf[msg.sender].fullName).length > 0,
+            "You are not a patient"
+        );
+
+        Patient storage patientData = patientDataOf[msg.sender];
+
+        return patientData.requestedDoctors;
+    }
+
+    // TODO: Accept request from Doctor
+
+    // TODO: Remove an approved Doctor
+
+    // TODO: Get patient health data
+
+    // TODO: Add a prescriptionNote to Patient
 }

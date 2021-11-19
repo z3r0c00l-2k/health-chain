@@ -1,5 +1,6 @@
 const HealthChain = artifacts.require('./HealthChain.sol');
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { assert } = require('chai');
 require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bn')(BN))
@@ -9,6 +10,20 @@ contract('HealthChain', (accounts) => {
   const [deployer, uploader] = accounts;
 
   let healthChain;
+
+  const patientTestData = {
+    fullName: 'Jack Cooper',
+    age: new BN(24),
+    sex: 'male',
+    address: uploader,
+  };
+
+  const doctorTestData = {
+    fullName: 'Jack Cooper',
+    hospitalName: 'Starcare',
+    specialization: 'Cardiologist',
+    address: accounts[2],
+  };
 
   before(async () => {
     healthChain = await HealthChain.deployed();
@@ -32,12 +47,6 @@ contract('HealthChain', (accounts) => {
   });
 
   describe('Registration', () => {
-    const patientTestData = {
-      fullName: 'Jack Cooper',
-      age: new BN(24),
-      sex: 'male',
-    };
-
     it('Patient registration', async () => {
       await expectRevert(
         healthChain.registerPatient(
@@ -45,7 +54,7 @@ contract('HealthChain', (accounts) => {
           patientTestData.age,
           patientTestData.sex,
           {
-            from: uploader,
+            from: patientTestData.address,
           }
         ),
         'Name should not empty'
@@ -56,7 +65,7 @@ contract('HealthChain', (accounts) => {
           0,
           patientTestData.sex,
           {
-            from: uploader,
+            from: patientTestData.address,
           }
         ),
         'Age should not empty'
@@ -67,7 +76,7 @@ contract('HealthChain', (accounts) => {
           patientTestData.age,
           '',
           {
-            from: uploader,
+            from: patientTestData.address,
           }
         ),
         'Sex should not empty'
@@ -78,7 +87,7 @@ contract('HealthChain', (accounts) => {
         patientTestData.age,
         patientTestData.sex,
         {
-          from: uploader,
+          from: patientTestData.address,
         }
       );
       assert.equal(success, true, 'It returns true');
@@ -88,7 +97,7 @@ contract('HealthChain', (accounts) => {
         patientTestData.age,
         patientTestData.sex,
         {
-          from: uploader,
+          from: patientTestData.address,
         }
       );
       expectEvent(receipt, 'PatientRegistered', {
@@ -97,7 +106,9 @@ contract('HealthChain', (accounts) => {
         sex: patientTestData.sex,
       });
 
-      const newlyRegsiteredPatient = await healthChain.getPatientData(uploader);
+      const newlyRegsiteredPatient = await healthChain.getPatientData(
+        patientTestData.address
+      );
       assert.equal(newlyRegsiteredPatient.fullName, patientTestData.fullName);
       assert.equal(newlyRegsiteredPatient.age.toNumber(), patientTestData.age);
       assert.equal(newlyRegsiteredPatient.sex, patientTestData.sex);
@@ -108,19 +119,12 @@ contract('HealthChain', (accounts) => {
           patientTestData.age,
           patientTestData.sex,
           {
-            from: uploader,
+            from: patientTestData.address,
           }
         ),
         'Registration already exists'
       );
     });
-
-    const doctorTestData = {
-      fullName: 'Jack Cooper',
-      hospitalName: 'Starcare',
-      specialization: 'Cardiologist',
-      address: accounts[0],
-    };
 
     it('Doctor registration', async () => {
       await expectRevert(
@@ -205,6 +209,49 @@ contract('HealthChain', (accounts) => {
         ),
         'Registration already exists'
       );
+    });
+  });
+
+  describe('Health Data', () => {
+    it('Request for patient data', async () => {
+      await expectRevert(
+        healthChain.requestForPatientAccess(patientTestData.address, {
+          from: deployer,
+        }),
+        'You should be a doctor'
+      );
+      await expectRevert(
+        healthChain.requestForPatientAccess(accounts[6], {
+          from: doctorTestData.address,
+        }),
+        'No patient found with this id'
+      );
+
+      const success = await healthChain.requestForPatientAccess.call(
+        patientTestData.address,
+        {
+          from: doctorTestData.address,
+        }
+      );
+      assert.equal(success, true, 'It returns true');
+
+      await healthChain.requestForPatientAccess(patientTestData.address, {
+        from: doctorTestData.address,
+      });
+    });
+
+    it('Checking get doctor requests', async () => {
+      await expectRevert(
+        healthChain.getDoctorRequests({
+          from: deployer,
+        }),
+        'You are not a patient'
+      );
+
+      const receipt = await healthChain.getDoctorRequests({
+        from: patientTestData.address,
+      });
+      assert(receipt.includes(doctorTestData.address), 'Request done');
     });
   });
 });
