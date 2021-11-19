@@ -226,6 +226,7 @@ contract('HealthChain', (accounts) => {
         }),
         'No patient found with this id'
       );
+      // TODO: test revert on already exitsting approval
 
       const success = await healthChain.requestForPatientAccess.call(
         patientTestData.address,
@@ -238,6 +239,12 @@ contract('HealthChain', (accounts) => {
       await healthChain.requestForPatientAccess(patientTestData.address, {
         from: doctorTestData.address,
       });
+      await expectRevert(
+        healthChain.requestForPatientAccess(patientTestData.address, {
+          from: doctorTestData.address,
+        }),
+        'Request already exists'
+      );
     });
 
     it('Checking get doctor requests', async () => {
@@ -253,5 +260,46 @@ contract('HealthChain', (accounts) => {
       });
       assert(receipt.includes(doctorTestData.address), 'Request done');
     });
+
+    it('Acepeting a request', async () => {
+      await expectRevert(
+        healthChain.reviewDoctorRequest(doctorTestData.address, false, {
+          from: deployer,
+        }),
+        'You are not a patient'
+      );
+      await expectRevert(
+        healthChain.reviewDoctorRequest(accounts[5], false, {
+          from: patientTestData.address,
+        }),
+        'The request does not exists'
+      );
+      assert(
+        await healthChain.reviewDoctorRequest.call(
+          doctorTestData.address,
+          false,
+          {
+            from: patientTestData.address,
+          }
+        ),
+        'Successfull reject'
+      );
+      assert(
+        await healthChain.reviewDoctorRequest.call(
+          doctorTestData.address,
+          true,
+          {
+            from: patientTestData.address,
+          }
+        ),
+        'Successfull reject'
+      );
+
+      await healthChain.reviewDoctorRequest(doctorTestData.address, true, {
+        from: patientTestData.address,
+      });
+    });
+
+    it('Revoke Permission of a doctor', async () => {});
   });
 });

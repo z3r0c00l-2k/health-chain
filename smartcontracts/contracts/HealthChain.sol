@@ -42,6 +42,21 @@ contract HealthChain {
 
     constructor() {}
 
+    modifier onlyPatient() {
+        require(
+            bytes(patientDataOf[msg.sender].fullName).length > 0,
+            "You are not a patient"
+        );
+        _;
+    }
+    modifier onlyDoctor() {
+        require(
+            bytes(doctorDataOf[msg.sender].fullName).length > 0,
+            "You should be a doctor"
+        );
+        _;
+    }
+
     function registerPatient(
         string memory _fullName,
         uint256 _age,
@@ -111,16 +126,28 @@ contract HealthChain {
 
     function requestForPatientAccess(address _patientId)
         public
+        onlyDoctor
         returns (bool success)
     {
-        require(
-            bytes(doctorDataOf[msg.sender].fullName).length > 0,
-            "You should be a doctor"
-        );
         require(
             bytes(patientDataOf[_patientId].fullName).length > 0,
             "No patient found with this id"
         );
+        require(
+            checkItemInsideAddress(
+                patientDataOf[_patientId].allowedDoctors,
+                msg.sender
+            ) < 0,
+            "Approval already exists"
+        );
+        require(
+            checkItemInsideAddress(
+                patientDataOf[_patientId].requestedDoctors,
+                msg.sender
+            ) < 0,
+            "Request already exists"
+        );
+        // TODO check if permission already exists
 
         patientDataOf[_patientId].requestedDoctors.push(msg.sender);
 
@@ -130,23 +157,75 @@ contract HealthChain {
     function getDoctorRequests()
         public
         view
+        onlyPatient
         returns (address[] memory requestedDoctors)
     {
-        require(
-            bytes(patientDataOf[msg.sender].fullName).length > 0,
-            "You are not a patient"
-        );
-
         Patient storage patientData = patientDataOf[msg.sender];
 
         return patientData.requestedDoctors;
     }
 
     // TODO: Accept request from Doctor
+    function reviewDoctorRequest(address _doctorId, bool _isAllowed)
+        public
+        onlyPatient
+        returns (bool success)
+    {
+        int256 pos = checkItemInsideAddress(
+            patientDataOf[msg.sender].requestedDoctors,
+            _doctorId
+        );
+        require(pos >= 0, "The request does not exists");
+
+        if (_isAllowed == true) {
+            patientDataOf[msg.sender].allowedDoctors.push(_doctorId);
+        }
+
+        // Deleting this request from array
+        Patient storage patientData = patientDataOf[msg.sender];
+        for (
+            uint256 i = uint256(pos);
+            i < patientData.requestedDoctors.length - 1;
+            i++
+        ) {
+            patientData.requestedDoctors[i] = patientData.requestedDoctors[
+                i + 1
+            ];
+        }
+        patientData.requestedDoctors.pop();
+
+        return true;
+    }
 
     // TODO: Remove an approved Doctor
+    function revokePermission(address _doctorId)
+        public
+        onlyPatient
+        returns (bool success)
+    {
+        int256 pos = checkItemInsideAddress(
+            patientDataOf[msg.sender].allowedDoctors,
+            _doctorId
+        );
+    }
 
     // TODO: Get patient health data
 
     // TODO: Add a prescriptionNote to Patient
+}
+
+function checkItemInsideAddress(address[] memory _addressList, address _element)
+    pure
+    returns (int256 pos)
+{
+    int256 _pos = -1;
+
+    for (uint256 i = 0; i < _addressList.length; i++) {
+        if (_element == _addressList[i]) {
+            _pos = int256(i);
+            break;
+        }
+    }
+
+    return _pos;
 }
