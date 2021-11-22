@@ -20,7 +20,7 @@ const NavBar = () => {
   return (
     <AppBar position='static'>
       <Toolbar>
-        <Typography variant='h6' component='div' sx={{ flexGrow: 1, ml: 4 }}>
+        <Typography className='me-auto ms-4' variant='h6' component='div'>
           HealthChain
           {currentUserData?.fullName &&
             ` : ${currentUserData?.isDoctor ? 'Doctor' : 'Patient'}`}
@@ -42,8 +42,12 @@ const NavBar = () => {
             )}...${web3.currentAddress?.substring(38, 42)}`}
           </Link>
         </Tooltip>
-        <Avatar sx={{ ml: 2 }} />
-        <IconButton sx={{ ml: 4 }} onClick={toggleDarkMode} color='inherit'>
+        <Avatar className='ms-3' />
+        <IconButton
+          className='me-4 ms-3'
+          onClick={toggleDarkMode}
+          color='inherit'
+        >
           {theme.palette.mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
         </IconButton>
       </Toolbar>

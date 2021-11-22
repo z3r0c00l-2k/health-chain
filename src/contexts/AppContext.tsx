@@ -10,21 +10,15 @@ type ContextType = {
   contractAddress: string;
   availableNetworks: string[];
   currentUserData: UserData | null;
+  healthChainContract: Contract | null;
+  getUserData: () => void;
 };
 
 export const AppContext = createContext({} as ContextType);
 
 export const AppContextProvider: FC = ({ children }) => {
   const web3Data = useWeb3();
-  const {
-    accounts,
-    isWeb3,
-    web3,
-    explorerUrl,
-    network,
-    networkId,
-    currentAddress,
-  } = web3Data;
+  const { isWeb3, web3, networkId, currentAddress } = web3Data;
 
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [healthChainContract, setHealthChainContract] =
@@ -42,7 +36,8 @@ export const AppContextProvider: FC = ({ children }) => {
       if (networkData) {
         const healthChain = new web3.eth.Contract(
           HealthChain.abi as any,
-          networkData.address
+          networkData.address,
+          { from: currentAddress }
         );
         setHealthChainContract(healthChain);
         setContractAddress(networkData.address);
@@ -96,6 +91,8 @@ export const AppContextProvider: FC = ({ children }) => {
         contractAddress,
         availableNetworks,
         currentUserData,
+        healthChainContract,
+        getUserData,
       }}
     >
       {children}

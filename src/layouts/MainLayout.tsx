@@ -7,7 +7,7 @@ const MainLayout: FC = ({ children }) => {
     <div className='d-flex flex-column flex-fill'>
       <NavBar />
       <div
-        className='container flex-grow-1 d-flex flex-column overflow-auto'
+        className='container flex-grow-1 d-flex flex-column overflow-auto py-4'
         style={{ height: 0 }}
       >
         {children}
