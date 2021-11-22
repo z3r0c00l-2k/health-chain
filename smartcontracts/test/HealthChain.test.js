@@ -226,7 +226,6 @@ contract('HealthChain', (accounts) => {
         }),
         'No patient found with this id'
       );
-      // TODO: test revert on already exitsting approval
 
       const success = await healthChain.requestForPatientAccess.call(
         patientTestData.address,
@@ -300,6 +299,77 @@ contract('HealthChain', (accounts) => {
       });
     });
 
-    it('Revoke Permission of a doctor', async () => {});
+    it('Revoke Permission of a doctor', async () => {
+      await expectRevert(
+        healthChain.revokePermission(doctorTestData.address, {
+          from: deployer,
+        }),
+        'You are not a patient'
+      );
+      await expectRevert(
+        healthChain.revokePermission(deployer, {
+          from: patientTestData.address,
+        }),
+        'The permission does not exists'
+      );
+
+      assert(
+        await healthChain.revokePermission.call(doctorTestData.address, {
+          from: patientTestData.address,
+        }),
+        'It returns true'
+      );
+    });
+
+    it('Get Health Data', async () => {
+      await expectRevert(
+        healthChain.getPatientHealth(patientTestData.address, {
+          from: deployer,
+        }),
+        'You are not allowed to access'
+      );
+
+      const data = await healthChain.getPatientHealth(patientTestData.address, {
+        from: doctorTestData.address,
+      });
+
+      assert.equal(data.fullName, patientTestData.fullName);
+      assert.equal(data.age.toNumber(), patientTestData.age);
+      assert.equal(data.sex, patientTestData.sex);
+    });
+
+    it('Add Prescription Note', async () => {
+      const prescription = 'Hello';
+
+      await expectRevert(
+        healthChain.addPrescription(patientTestData.address, prescription, {
+          from: deployer,
+        }),
+        'You are not allowed to access'
+      );
+      await expectRevert(
+        healthChain.addPrescription(patientTestData.address, '', {
+          from: doctorTestData.address,
+        }),
+        'Notes Should not empty'
+      );
+
+      assert(
+        await healthChain.addPrescription(
+          patientTestData.address,
+          prescription,
+          {
+            from: doctorTestData.address,
+          }
+        ),
+        'It returns true'
+      );
+
+      const data = await healthChain.getPatientHealth(patientTestData.address, {
+        from: doctorTestData.address,
+      });
+      const found = data.prescriptionNotes.find((x) => x.note === prescription);
+      assert(found, 'Successfully added prescription');
+    });
   });
 });

@@ -6,7 +6,7 @@ contract HealthChain {
     string public version = "0.1";
 
     struct Prescription {
-        string notes;
+        string note;
         uint256 timestamp;
         address payable createdBy;
     }
@@ -147,7 +147,6 @@ contract HealthChain {
             ) < 0,
             "Request already exists"
         );
-        // TODO check if permission already exists
 
         patientDataOf[_patientId].requestedDoctors.push(msg.sender);
 
@@ -197,7 +196,6 @@ contract HealthChain {
         return true;
     }
 
-    // TODO: Remove an approved Doctor
     function revokePermission(address _doctorId)
         public
         onlyPatient
@@ -207,11 +205,74 @@ contract HealthChain {
             patientDataOf[msg.sender].allowedDoctors,
             _doctorId
         );
+        require(pos >= 0, "The permission does not exists");
+
+        // Deleting this permission from array
+        Patient storage patientData = patientDataOf[msg.sender];
+        for (
+            uint256 i = uint256(pos);
+            i < patientData.allowedDoctors.length - 1;
+            i++
+        ) {
+            patientData.allowedDoctors[i] = patientData.allowedDoctors[i + 1];
+        }
+        patientData.allowedDoctors.pop();
+
+        return true;
     }
 
-    // TODO: Get patient health data
+    function getPatientHealth(address _patientId)
+        public
+        view
+        returns (
+            string memory fullName,
+            uint256 age,
+            string memory sex,
+            uint256 createdDate,
+            Prescription[] memory prescriptionNotes
+        )
+    {
+        require(
+            checkItemInsideAddress(
+                patientDataOf[_patientId].allowedDoctors,
+                msg.sender
+            ) >= 0,
+            "You are not allowed to access"
+        );
 
-    // TODO: Add a prescriptionNote to Patient
+        Patient storage patientData = patientDataOf[_patientId];
+
+        return (
+            patientData.fullName,
+            patientData.age,
+            patientData.sex,
+            patientData.createdDate,
+            patientData.prescriptionNotes
+        );
+    }
+
+    function addPrescription(address _patientId, string memory _note)
+        public
+        returns (bool success)
+    {
+        require(bytes(_note).length > 0, "Notes Should not empty");
+        require(
+            checkItemInsideAddress(
+                patientDataOf[_patientId].allowedDoctors,
+                msg.sender
+            ) >= 0,
+            "You are not allowed to access"
+        );
+        Prescription memory newPrescription = Prescription(
+            _note,
+            block.timestamp,
+            payable(msg.sender)
+        );
+        Patient storage patientData = patientDataOf[_patientId];
+        patientData.prescriptionNotes.push(newPrescription);
+
+        return true;
+    }
 }
 
 function checkItemInsideAddress(address[] memory _addressList, address _element)
