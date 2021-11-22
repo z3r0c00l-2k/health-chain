@@ -94,6 +94,35 @@ contract HealthChain {
         return (patientData.fullName, patientData.age, patientData.sex);
     }
 
+    function getUserData()
+        public
+        view
+        returns (
+            string memory fullName,
+            bool isDoctor,
+            string memory hospitalName,
+            string memory specialization
+        )
+    {
+        Patient memory patientData = patientDataOf[msg.sender];
+        Doctor memory doctorData = doctorDataOf[msg.sender];
+
+        if (bytes(patientData.fullName).length > 0) {
+            return (patientData.fullName, false, "", "");
+        }
+
+        if (bytes(doctorData.fullName).length > 0) {
+            return (
+                doctorData.fullName,
+                true,
+                doctorData.hospitalName,
+                doctorData.specialization
+            );
+        }
+
+        return ("", false, "", "");
+    }
+
     function registerDoctor(
         string memory _fullName,
         string memory _hospitalName,

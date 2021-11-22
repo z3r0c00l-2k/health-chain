@@ -1,25 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+import { useContext, useMemo } from 'react';
+import Router from './Router';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import createCustomTheme from './theme';
+import { AppContext } from './contexts/AppContext';
 
-function App() {
-  return (
-    <div className='App'>
-      <header className='App-header'>
-        <img src={logo} className='App-logo' alt='' />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className='App-link'
-          href='https://reactjs.org'
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+const App = () => {
+  const { isDarkMode } = useContext(AppContext);
+
+  const theme = useMemo(
+    () => createCustomTheme(isDarkMode ? 'dark' : 'light'),
+    [isDarkMode]
   );
-}
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router />
+    </ThemeProvider>
+  );
+};
 
 export default App;

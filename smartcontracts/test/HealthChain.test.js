@@ -210,6 +210,27 @@ contract('HealthChain', (accounts) => {
         'Registration already exists'
       );
     });
+
+    it('Get Userdata', async () => {
+      await expectRevert(
+        healthChain.getUserData({ from: accounts[6] }),
+        'User is not registered'
+      );
+
+      const registeredDoc = await healthChain.getUserData({
+        from: doctorTestData.address,
+      });
+      assert.equal(registeredDoc.fullName, doctorTestData.fullName);
+      assert(registeredDoc.isDoctor);
+      assert.equal(registeredDoc.hospitalName, doctorTestData.hospitalName);
+      assert.equal(registeredDoc.specialization, doctorTestData.specialization);
+
+      const registeredPat = await healthChain.getUserData({
+        from: patientTestData.address,
+      });
+      assert.equal(registeredPat.fullName, patientTestData.fullName);
+      assert.equal(registeredPat.isDoctor, false);
+    });
   });
 
   describe('Health Data', () => {
