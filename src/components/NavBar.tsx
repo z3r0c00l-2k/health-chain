@@ -22,12 +22,11 @@ const NavBar = () => {
       <Toolbar>
         <Typography className='me-auto ms-4' variant='h6' component='div'>
           HealthChain
-          {currentUserData?.fullName &&
-            ` : ${currentUserData?.isDoctor ? 'Doctor' : 'Patient'}`}
         </Typography>
         {currentUserData?.fullName && (
           <Typography variant='body2' sx={{ mr: 2 }}>
-            Name : <span className='fw-bold'>{currentUserData?.fullName}</span>
+            {`${currentUserData?.isDoctor ? 'Doctor' : 'Patient'}`} Name :{' '}
+            <span className='fw-bold'>{currentUserData?.fullName}</span>
           </Typography>
         )}
         <Tooltip title={web3.currentAddress}>
