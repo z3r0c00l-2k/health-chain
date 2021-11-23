@@ -15,22 +15,22 @@ const PatientDetailsView = ({ selectedPatient, closePatient }: Props) => {
 
   useEffect(() => {
     setPatientData(null);
-    if (selectedPatient?.address && healthChainContract) {
+    if (selectedPatient?.patientId && healthChainContract) {
       getPatientData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPatient, healthChainContract]);
 
   const getPatientData = async () => {
-    if (selectedPatient?.address && healthChainContract) {
+    if (selectedPatient?.patientId && healthChainContract) {
       try {
         const data: Patient = await healthChainContract.methods
-          .getPatientData(selectedPatient?.address)
+          .getPatientData(selectedPatient?.patientId)
           .call();
         // console.log({ data });
 
         if (data.fullName) {
-          setPatientData({ ...data, address: selectedPatient?.address });
+          setPatientData({ ...data, patientId: selectedPatient?.patientId });
         } else {
           closePatient();
           alert('No Patient Found');
@@ -43,10 +43,10 @@ const PatientDetailsView = ({ selectedPatient, closePatient }: Props) => {
   };
 
   const requestForAccess = async () => {
-    if (healthChainContract && patientData?.address) {
+    if (healthChainContract && patientData?.patientId) {
       try {
         const success = await healthChainContract.methods
-          .requestForPatientAccess(patientData.address)
+          .requestForPatientAccess(patientData.patientId)
           .send();
         // console.log({ success });
 

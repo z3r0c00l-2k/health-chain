@@ -262,18 +262,20 @@ contract('HealthChain', (accounts) => {
       );
     });
 
-    it('Checking get doctor requests', async () => {
+    it('Checking get Patient Data getting', async () => {
       await expectRevert(
-        healthChain.getDoctorRequests({
+        healthChain.getPatientDataByOwner({
           from: deployer,
         }),
         'You are not a patient'
       );
 
-      const receipt = await healthChain.getDoctorRequests({
+      const data = await healthChain.getPatientDataByOwner({
         from: patientTestData.address,
       });
-      assert(receipt.includes(doctorTestData.address), 'Request done');
+      assert.equal(data.fullName, patientTestData.fullName, 'Request done');
+      assert.equal(data.age, patientTestData.age, 'Request done');
+      assert.equal(data.sex, patientTestData.sex, 'Request done');
     });
 
     it('Acepeting a request', async () => {
@@ -313,6 +315,11 @@ contract('HealthChain', (accounts) => {
       await healthChain.reviewDoctorRequest(doctorTestData.address, true, {
         from: patientTestData.address,
       });
+
+      const docterData = await healthChain.getDoctorDataByOwner({
+        from: doctorTestData.address,
+      });
+      assert(docterData.patients.includes(patientTestData.address));
     });
 
     it('Revoke Permission of a doctor', async () => {

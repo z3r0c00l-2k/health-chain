@@ -28,6 +28,7 @@ contract HealthChain {
         string hospitalName;
         string specialization;
         uint256 createdDate;
+        address[] patients;
     }
 
     mapping(address => Patient) private patientDataOf;
@@ -71,6 +72,7 @@ contract HealthChain {
         require(bytes(_sex).length > 0, "Sex should not empty");
 
         Patient storage newPatient = patientDataOf[msg.sender];
+        newPatient.patientId = payable(msg.sender);
         newPatient.fullName = _fullName;
         newPatient.age = _age;
         newPatient.sex = _sex;
@@ -165,6 +167,7 @@ contract HealthChain {
         );
 
         Doctor storage newDoctor = doctorDataOf[msg.sender];
+        newDoctor.doctorId = payable(msg.sender);
         newDoctor.fullName = _fullName;
         newDoctor.hospitalName = _hospitalName;
         newDoctor.specialization = _specialization;
@@ -204,18 +207,26 @@ contract HealthChain {
         return true;
     }
 
-    function getDoctorRequests()
+    function getPatientDataByOwner()
         public
         view
         onlyPatient
-        returns (address[] memory requestedDoctors)
+        returns (Patient memory patientData)
     {
-        Patient storage patientData = patientDataOf[msg.sender];
-
-        return patientData.requestedDoctors;
+        Patient memory _patientData = patientDataOf[msg.sender];
+        return _patientData;
     }
 
-    // TODO: Accept request from Doctor
+    function getDoctorDataByOwner()
+        public
+        view
+        onlyDoctor
+        returns (Doctor memory doctorData)
+    {
+        Doctor memory _doctorData = doctorDataOf[msg.sender];
+        return _doctorData;
+    }
+
     function reviewDoctorRequest(address _doctorId, bool _isAllowed)
         public
         onlyPatient
@@ -229,6 +240,7 @@ contract HealthChain {
 
         if (_isAllowed == true) {
             patientDataOf[msg.sender].allowedDoctors.push(_doctorId);
+            doctorDataOf[_doctorId].patients.push(msg.sender);
         }
 
         // Deleting this request from array
@@ -259,15 +271,25 @@ contract HealthChain {
         require(pos >= 0, "The permission does not exists");
 
         // Deleting this permission from array
-        Patient storage patientData = patientDataOf[msg.sender];
+        Patient storage _patientData = patientDataOf[msg.sender];
         for (
             uint256 i = uint256(pos);
-            i < patientData.allowedDoctors.length - 1;
+            i < _patientData.allowedDoctors.length - 1;
             i++
         ) {
-            patientData.allowedDoctors[i] = patientData.allowedDoctors[i + 1];
+            _patientData.allowedDoctors[i] = _patientData.allowedDoctors[i + 1];
         }
-        patientData.allowedDoctors.pop();
+        _patientData.allowedDoctors.pop();
+
+        Doctor storage _doctorData = doctorDataOf[_doctorId];
+        for (
+            uint256 i = uint256(pos);
+            i < _doctorData.patients.length - 1;
+            i++
+        ) {
+            _doctorData.patients[i] = _doctorData.patients[i + 1];
+        }
+        _doctorData.patients.pop();
 
         return true;
     }

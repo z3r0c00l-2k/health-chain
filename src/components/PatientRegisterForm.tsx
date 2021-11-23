@@ -95,6 +95,7 @@ const PatientRegisterForm = () => {
           <RadioGroup className='flex-row' name='sex'>
             {sexOptions.map((option) => (
               <FormControlLabel
+                key={option}
                 value={option}
                 control={
                   <Radio

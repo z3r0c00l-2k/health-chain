@@ -11,9 +11,18 @@ type Patient = {
   fullName?: string;
   sex?: string;
   age?: number;
-  address: string;
+  patientId: string;
   status?: 'none' | 'requested' | 'approved';
   requestedDoctors?: string[];
   allowedDoctors?: string[];
   prescriptionNotes?: Prescription[];
+};
+
+type Doctor = {
+  doctorId: string;
+  fullName?: string;
+  hospitalName?: string;
+  specialization?: string;
+  createdDate?: number;
+  patients?: string[];
 };

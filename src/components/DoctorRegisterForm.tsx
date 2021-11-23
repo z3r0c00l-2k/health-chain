@@ -24,7 +24,6 @@ const DoctorRegisterForm = () => {
   const { healthChainContract, getUserData } = useContext(AppContext);
 
   const onSubmit = async (values: Values) => {
-    console.log({ values });
     if (healthChainContract) {
       try {
         const success = await healthChainContract.methods
