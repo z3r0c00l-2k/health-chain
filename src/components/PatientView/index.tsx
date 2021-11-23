@@ -1,7 +1,8 @@
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Paper, Typography } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../contexts/AppContext';
 import { getRevertMessage } from '../../utils';
+import PrescriptionItem from '../DoctorView/PrescriptionItem';
 import DoctorsList from './DoctorsList';
 
 const PatientView = () => {
@@ -48,7 +49,23 @@ const PatientView = () => {
               title='Approved Doctor'
             />
           </div>
-          <div className='col-md-6 d-flex flex-column'></div>
+          <div className='col-md-6 d-flex flex-column'>
+            <Paper className='flex-fill d-flex flex-column px-5 pt-4'>
+              <Typography textAlign='center' variant='h6'>
+                Prescriptions
+              </Typography>
+              <div
+                className='d-flex flex-column flex-grow-1 mt-3 overflow-auto mb-3'
+                style={{
+                  height: 0,
+                }}
+              >
+                {patientData.prescriptionNotes?.map((item) => (
+                  <PrescriptionItem key={item.timestamp} prescription={item} />
+                ))}
+              </div>
+            </Paper>
+          </div>
         </>
       )}
     </div>

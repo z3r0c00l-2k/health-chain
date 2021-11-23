@@ -5,6 +5,7 @@ import { getRevertMessage } from '../../utils';
 import CheckIcon from '@mui/icons-material/Check';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import PrescriptionsList from './PrescriptionsList';
 
 type Props = { selectedPatient: Patient | null; closePatient: () => void };
 
@@ -120,6 +121,7 @@ const PatientDetailsView = ({ selectedPatient, closePatient }: Props) => {
               </Button>
             </div>
           </div>
+          <PrescriptionsList patientId={patientData.patientId} />
         </div>
       )}
     </Paper>
