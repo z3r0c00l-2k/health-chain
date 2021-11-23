@@ -12302,9 +12302,10 @@ react-transition-group@^4.4.2:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
-"react-web3-hook@https://github.com/z3r0c00l-2k/react-web3-hook":
+react-web3-hook@^1.0.0:
   version "1.0.0"
-  resolved "https://github.com/z3r0c00l-2k/react-web3-hook#5a053c5e04d187b5205e3598dad52fafb2b99b81"
+  resolved "https://registry.yarnpkg.com/react-web3-hook/-/react-web3-hook-1.0.0.tgz#496d20f1adcc1ddc76d506da891d6b4131a4ae6a"
+  integrity sha512-XUTAsJdQYM6LeB8PPMPdz33mouGyBQrKP+LvRvYoy+eXU5OBfZLIpH5djh/IpRbG7M3zduqMQe2lyzfM61Cyew==
   dependencies:
     web3 "^1.6.0"
 
