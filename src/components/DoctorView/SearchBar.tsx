@@ -10,9 +10,7 @@ type Props = {
 const SearchBar = ({ onSearchSubmit }: Props) => {
   const { web3 } = useContext(AppContext);
 
-  const [searchInput, setSearchInput] = useState(
-    '0xb2D08dd08B465a59f075656DF23D0eB0Ab77Aa98'
-  );
+  const [searchInput, setSearchInput] = useState('');
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
