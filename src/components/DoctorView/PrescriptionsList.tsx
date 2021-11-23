@@ -1,9 +1,7 @@
-import { Card, Typography } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../contexts/AppContext';
 import { getRevertMessage } from '../../utils';
 import PrescriptionForm from './PrescriptionForm';
-import moment from 'moment';
 import PrescriptionItem from './PrescriptionItem';
 
 type Props = {
@@ -19,6 +17,7 @@ const PrescriptionsList = ({ patientId }: Props) => {
 
   useEffect(() => {
     getPrescriptionsList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientId]);
 
   const getPrescriptionsList = async () => {
