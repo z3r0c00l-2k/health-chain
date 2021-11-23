@@ -25,6 +25,7 @@
     "react-web3-hook": "https://github.com/z3r0c00l-2k/react-web3-hook",
     "typescript": "^4.1.2",
     "web-vitals": "^1.0.1",
+    "web3": "^1.6.1",
     "web3-eth-contract": "^1.6.1",
     "yup": "^0.32.11"
   },
