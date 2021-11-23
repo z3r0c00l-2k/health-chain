@@ -212,11 +212,6 @@ contract('HealthChain', (accounts) => {
     });
 
     it('Get Userdata', async () => {
-      await expectRevert(
-        healthChain.getUserData({ from: accounts[6] }),
-        'User is not registered'
-      );
-
       const registeredDoc = await healthChain.getUserData({
         from: doctorTestData.address,
       });

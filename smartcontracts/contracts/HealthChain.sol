@@ -86,12 +86,34 @@ contract HealthChain {
         returns (
             string memory fullName,
             uint256 age,
-            string memory sex
+            string memory sex,
+            string memory status
         )
     {
         Patient memory patientData = patientDataOf[_patientId];
+        string memory _status = "none";
+        if (
+            checkItemInsideAddress(
+                patientDataOf[_patientId].requestedDoctors,
+                msg.sender
+            ) >= 0
+        ) {
+            _status = "requested";
+        } else if (
+            checkItemInsideAddress(
+                patientDataOf[_patientId].allowedDoctors,
+                msg.sender
+            ) >= 0
+        ) {
+            _status = "approved";
+        }
 
-        return (patientData.fullName, patientData.age, patientData.sex);
+        return (
+            patientData.fullName,
+            patientData.age,
+            patientData.sex,
+            _status
+        );
     }
 
     function getUserData()
