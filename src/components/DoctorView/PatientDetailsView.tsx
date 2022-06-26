@@ -121,7 +121,9 @@ const PatientDetailsView = ({ selectedPatient, closePatient }: Props) => {
               </Button>
             </div>
           </div>
-          <PrescriptionsList patientId={patientData.patientId} />
+          {patientData.status === 'approved' && (
+            <PrescriptionsList patientId={patientData.patientId} />
+          )}
         </div>
       )}
     </Paper>
